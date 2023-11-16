@@ -12,3 +12,4 @@ podman run \
   -e NEO4J_AUTH=neo4j/CapgeminiSVG \
   neo4j:latest
 ```
+Then Neo4j is available on <http://localhost:7474/>
