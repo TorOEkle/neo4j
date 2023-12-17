@@ -38,26 +38,17 @@ class Family:
         address_description = f" at {self.address}" if self.address else ""
         return f"Family {self.family_name} with members: {member_descriptions}{address_description}"
 
-def create_and_assign_families(data, household_data, house_addresses, apartment_addresses):
-    persons = [Person(data['age'][i], data['sex'][i], data['work'][i], data['student'][i]) for i in range(len(data['age']))]
+def convert_addresses_to_list(addresses):
+    if isinstance(addresses, pd.DataFrame):
+        return addresses['kommune_adresse'].tolist()
+    return addresses
 
-    if isinstance(house_addresses, pd.DataFrame):
-        house_addresses = house_addresses['adressenavn'].tolist() 
-
-    if isinstance(apartment_addresses, pd.DataFrame):
-        apartment_addresses = apartment_addresses['kommune_adresse'].tolist()
-
+def create_households(household_data, house_addresses, apartment_addresses):
     households = []
     for i in range(len(household_data['type'])):
-        house_type = household_data['type'][i]
-        # Assign an address based on house type
-        if house_type == 'house':
-            address = np.random.choice(house_addresses)
-        else:
-            address = np.random.choice(apartment_addresses)
-
-        house = {
-            'type': house_type,
+        address = np.random.choice(house_addresses if household_data['type'][i] == 'house' else apartment_addresses)
+        households.append({
+            'type': household_data['type'][i],
             'share': household_data['share'][i],
             'rooms': household_data['rooms'][i],
             'bathrooms': household_data['bathrooms'][i],
@@ -66,26 +57,37 @@ def create_and_assign_families(data, household_data, house_addresses, apartment_
             'build_year': household_data['build_year'][i],
             'people': household_data['people'][i],
             'address': address
-        }
-        households.append(house)
+        })
+    return households
 
-    # Create and assign families to houses
+def create_families_from_persons(persons):
     families = []
     family = Family()
     for person in persons:
         family.add_member(person)
+        # Starts a new family if there are already 2 adults in the current family
         if len([p for p in family.members if p.age > 18]) >= 2:
             families.append(family)
             family = Family()
-
     if family.members:
         families.append(family)
+    return families
 
+def assign_families_to_households(families, households):
     for family in families:
         suitable_house = next((house for house in households if len(family.members) <= house['people']), None)
         if suitable_house:
             family.set_address(suitable_house['address'])
-            households.remove(suitable_house)  # Remove the assigned house
+            households.remove(suitable_house)
+
+def create_and_assign_families(data, household_data, house_addresses, apartment_addresses):
+    house_addresses = convert_addresses_to_list(house_addresses)
+    apartment_addresses = convert_addresses_to_list(apartment_addresses)
+
+    households = create_households(household_data, house_addresses, apartment_addresses)
+    persons = [Person(data['age'][i], data['sex'][i], data['work'][i], data['student'][i]) for i in range(len(data['age']))]
+    families = create_families_from_persons(persons)
+    assign_families_to_households(families, households)
 
     return families
 
@@ -99,14 +101,12 @@ if __name__ == "__main__":
         "student": sampler.sample_student(ages),
     }
 
-    # Generate addresses
+
     house_addresses = sampler._house_address()
     apartment_addresses = sampler._apartment_address()
 
-    # Generate households
     household_data = sampler.sample_household(N)
 
-    # Create and assign families
     families = create_and_assign_families(data, household_data, house_addresses, apartment_addresses)
 
     for family in families:
