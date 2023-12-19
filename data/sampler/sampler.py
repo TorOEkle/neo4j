@@ -5,10 +5,8 @@ from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 from pathlib import Path
 
-
 # setting seed
 np.random.seed(42)
-
 
 ## Helper functions
 def normalize(array):
@@ -40,8 +38,7 @@ def read_csv_zip(path, **kwargs):
         # but filenames in ZIP directories are case-sensitive
         with z.open(str(filepath)) as f:
             return pd.read_csv(f, **kwargs)
-
-    
+ 
 ## Group assigners
 def assign_constant_group(array, group, constant):
     array[group] = constant
@@ -54,7 +51,7 @@ def assign_bernoulli_group(array, group, p):
 ## Data wrappers
 def _house_address():
     address = read_csv_zip(
-        './matrikkel.zip/matrikkelenAdresse.csv',
+        r'C:\Users\dgronner\learning\neo_Demo\neo4j\data\matrikkel.zip\matrikkelenAdresse.csv',
         sep=';',
         header=0,
         dtype={
@@ -73,21 +70,21 @@ def _house_address():
     #        'adressenavn', 'nummer', 'adresseTekst', 'Nord', 'Øst',
     #        'postnummer', 'poststed', 'grunnkretsnavn',
     #        'soknenummer', 'soknenavn']]
-    address['nummer'] = address['nummer'].astype(int)
-
+    address['nummer'] = address['nummer'].astype(str)
+    address['kommune_adresse'] = address['kommunenavn'] + ', ' + address['adressenavn'] + ' ' + address['nummer']
     return address
 
 
 def _apartment_address():
     region1 = read_csv_zip(
-        "./matrikkel.zip/matrikkelenAdresseLeilighetsnivaSandnes.csv",
+        r'C:\Users\dgronner\learning\neo_Demo\neo4j\data\matrikkel.zip\matrikkelenAdresseLeilighetsnivaSandnes.csv',
         sep=";",
         dtype={
             "uuidAtkomst": str,
         },
     )
     region2 = read_csv_zip(
-        "./matrikkel.zip/matrikkelenAdresseLeilighetsnivaStavanger.csv",
+        r'C:\Users\dgronner\learning\neo_Demo\neo4j\data\matrikkel.zip\matrikkelenAdresseLeilighetsnivaStavanger.csv',
         sep=";",
         dtype={
             "adressetilleggsnavn": str,
