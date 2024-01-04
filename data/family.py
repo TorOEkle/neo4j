@@ -20,7 +20,7 @@ class Person:
         self.children = []
         self.parents = []
         
-    def set_partner(self, partner, is_married =False):
+    def set_partner(self, partner):
         self.partner = partner
         partner.partner = self
 
@@ -36,19 +36,14 @@ class Person:
             else:
                 self.family_name = partner.family_name
 
-            # For adults, combine names with female's name first
         elif (self.age < 55 and self.age >=18) and (partner.age < 55 and partner.age >= 18):
                 combined_name = f"{self.family_name}-{partner.family_name}" if self.sex == "Female" else f"{partner.family_name}-{self.family_name}"
                 if combined_name not in self.family_name:
                     self.set_family_name(combined_name)
                     partner.set_family_name(combined_name)
                     
-
     def set_family_name(self, new_name):
         self.family_name = new_name
-        # for child in self.children:
-        #     if child.family_name not in new_name:
-        #         child.set_family_name(new_name)
 
     def add_child(self, child):
         if child not in self.children:
@@ -71,9 +66,6 @@ class Family:
     def add_family(self, family):
         self.families.append(family)
 
-    def __str__(self):
-        return f"Family: {self.family_name}, number"
-    
     def __str__(self):
         family_members = '\n  '.join([str(member) for member in self.families])
         return f"Family: {self.family_name}\n  Members:\n  {family_members}\n"
@@ -101,7 +93,6 @@ class Household:
         household_members = '\n  '.join([str(member) for member in self.members])
         return f"Household of the {self.extended_family.family_name} Family\n  {address_description}\n  Members:\n  {household_members}\n"
     
-
 def create_families(persons):
     families = {}
     for person in persons:
@@ -110,7 +101,6 @@ def create_families(persons):
         families[person.family_name].add_family(person)
 
     for family in families.values():
-        # Update the family name based on the oldest male grandparent
         oldest_male = sorted([p for p in family.families if p.age >= 55 and p.sex == "Male"], key=lambda x: x.age, reverse=True)
         if oldest_male:
             family_name = oldest_male[0].family_name
@@ -124,7 +114,6 @@ def create_households(persons):
     households = []
     included = set()
 
-    # Create households for adults with their partners and children
     for person in persons:
         if person.age >= 18 and person.age < 55 and person not in included:
             household = Household(Family(person.family_name))
@@ -139,7 +128,6 @@ def create_households(persons):
                     included.add(child)
             households.append(household)
 
-    # Create separate households for grandparents
     for person in persons:
         if person.age >= 55 and person not in included:
             household = Household(Family(person.family_name))
@@ -190,9 +178,8 @@ def set_partners(persons):
     while males and females:
         male = males.pop(0)
         for female in females:
-            # Check if they do not share the same parents
             if not set(male.parents).intersection(set(female.parents)):
-                male.set_partner(female, is_married=True)
+                male.set_partner(female)
                 females.remove(female)
                 break
 
@@ -201,12 +188,10 @@ def set_partners(persons):
     while len(remaining_individuals) > 1:
         partner1 = remaining_individuals.pop(0)
         for partner2 in remaining_individuals:
-            # Check if they do not share the same parents
             if not set(partner1.parents).intersection(set(partner2.parents)):
-                partner1.set_partner(partner2, is_married=True)
+                partner1.set_partner(partner2)
                 remaining_individuals.remove(partner2)
                 break
-
 
 def set_family(persons):
     grandparents = [p for p in persons if p.age >= 55]
@@ -234,14 +219,14 @@ if __name__ == "__main__":
         "student": sampler.sample_student(ages),
     }
 
-persons = [Person(age=data['age'][i], sex=data['sex'][i], work=data['work'][i]) for i in range(len(data['age']))]
+    persons = [Person(age=data['age'][i], sex=data['sex'][i], work=data['work'][i]) for i in range(len(data['age']))]
+    families, households = set_family(persons)
 
-families, households = set_family(persons)
+    print("Families Overview:")
+    for family in families.values():
+        print(family)
 
-print("Families Overview:")
-for family in families.values():
-    print(family)
-
-print("Households Overview:")
-for household in households:
-    print(household)
+    print("Households Overview:")
+    for household in households:
+        print(household)
+        
