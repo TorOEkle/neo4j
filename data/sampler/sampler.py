@@ -4,7 +4,7 @@ import zipfile
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 from pathlib import Path
-
+from activities import extracurricular_activity
 
 # setting seed
 np.random.seed(42)
@@ -329,13 +329,14 @@ if __name__ == "__main__":
         "sex": sample_sex(N),
         "work": sample_work(ages),
         "student": sample_student(ages),
+        "activity": extracurricular_activity(ages)
     }
 
-    print(data)
+    # print(data)
 
     # Convert the dictionary to a pandas DataFrame (optional, but convenient for data manipulation)
     df = pd.DataFrame(data)
     # Generate a student column based on age. = 1 for everyone under 18
 
     # Print the first few rows of the simulated dataset
-    print(df.head())
+    print(df)
