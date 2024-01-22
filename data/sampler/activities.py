@@ -5,7 +5,7 @@ import random
 
 
 
-def extracurricular_activity(ages):
+def extracurricular_activity(ages, p): 
 
     activity = np.zeros(len(ages))  # Initialize all as 0
     print(activity)
@@ -18,7 +18,7 @@ def extracurricular_activity(ages):
 
     # Assign a random activity to each student
     for person in range(len(ages)):
-        if 6 <= ages[person] <=18: # Set limit for age range (can change this.)
+        if 6 <= ages[person] <= 18 and random.random() < p: # Set limit for age range (can change this) + prob p for activity. 
             assigned_activities[person] = random.choice(activities)
         else:
             assigned_activities[person] = None

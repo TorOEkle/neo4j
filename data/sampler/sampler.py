@@ -329,7 +329,7 @@ if __name__ == "__main__":
         "sex": sample_sex(N),
         "work": sample_work(ages),
         "student": sample_student(ages),
-        "activity": extracurricular_activity(ages)
+        "activity": extracurricular_activity(ages, p = 0.8) # Give prob p for person doing activity. 
     }
 
     # print(data)
