@@ -223,7 +223,7 @@ def sample_household(size):
             "size": range(100, 200),         # Size of the house (between 100 and 200 square meters)
             "lot_size": range(200, 500),     # Lot size (between 200 and 500 square meters)
             "build_year": range(1970, 2019),
-            "people": range(1, 7),          # Number of people living in the household (between 1 and the number of rooms)
+            "people": range(3, 7),          # Number of people living in the household (between 1 and the number of rooms)
         },
         {
             "type": "apartment",
@@ -233,7 +233,7 @@ def sample_household(size):
             "size": range(75, 150),          # Size of the house (between 75 and 150 square meters)
             "lot_size": range(100, 300),     # Lot size (between 100 and 300 square meters)
             "build_year": range(1980, 2019),
-            "people": range(1, 5),          # Number of people living in the household (between 1 and the number of rooms)
+            "people": range(2, 5),          # Number of people living in the household (between 1 and the number of rooms)
         },
         {
             "type": "terrace-house",
@@ -243,7 +243,7 @@ def sample_household(size):
             "size": range(50, 100),          # Size of the apartment (between 50 and 100 square meters)
             "lot_size": 0,                   # Lot size (0 for apartments)
             "build_year": range(1990, 2019),
-            "people": range(1, 4),          # Number of people living in the household (between 1 and the number of rooms)
+            "people": range(2, 4),          # Number of people living in the household (between 1 and the number of rooms)
         },
     ]
 
