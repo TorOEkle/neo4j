@@ -19,8 +19,30 @@ def time_it(func):
 
 @time_it
 def get_last_names(N):
-    return [names.first_name() for i in range(N)]
+    return [names.last_name() for _ in range(N)]
 
+@time_it
+def extracurricular_activity(ages, p): 
+    activity = np.zeros(len(ages))  # Initialize all as 0
+    print(activity)
+
+    # List of possible extracurricular activities
+    activities = ["Football", "American football", "Volleyball", "Tennis", "Basketball", "Chess"]
+
+    # Dictionary to store assigned activities
+    assigned_activities = {}
+
+    # Assign a random activity to each student
+    for person in range(len(ages)):
+        if 6 <= ages[person] <= 18 and random.random() < p: # Set limit for age range (can change this) + prob p for activity. 
+            assigned_activities[person] = random.choice(activities)
+        else:
+            assigned_activities[person] = None
+
+
+    # print(len(np.array(list(assigned_activities.values()))))
+    assigned_activities = np.array(list(assigned_activities.values())) # Create a array from the dict. 
+    return assigned_activities
 
 @time_it
 def segregate_persons_by_age(persons):
@@ -39,27 +61,13 @@ def segregate_persons_by_age(persons):
     return children, young_adults, adults, seniors
 
 @time_it
-def count_and_print_same_sex_partnerships(persons):
-    same_sex_partnerships = []
-    others = []
-    for person in persons:
-        if person.partner and person.sex == person.partner.sex:
-            same_sex_partnerships.append((person, person.partner))
-        else:
-            others.append((person, person.partner))
-
-    count = len(same_sex_partnerships)
-    count1 = len(others)
-
-    print(count, count1)
-
-@time_it
 def get_random_data(N):
     ages = sampler.sample_age(N)
     data = {
         "age": ages,
         "sex":  sampler.sample_sex(N) ,
         "work": sampler.sample_work(ages),
+        "activity": extracurricular_activity(ages, p = 0.8)
     }
     return data
 
@@ -71,7 +79,7 @@ def people(data, N, female_names, male_names):
             name = male_names.pop()
         else:
             name = female_names.pop()
-        person = Person(age=data["age"][i], sex=data["sex"][i], work=data["work"][i], name=name)
+        person = Person(age=data["age"][i], sex=data["sex"][i], work=data["work"][i],activity=data["activity"][i], name=name)
         persons.append(person)
     return persons
 
