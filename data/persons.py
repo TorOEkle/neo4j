@@ -1,16 +1,25 @@
-
+import random
 
 class Person:
+    existing_ids = set()
     def __init__(self, age, sex, work, name=None):
+        self.personal_number = self.generate_unique_id()
         self.age = age
         self.sex = "Male" if sex ==1 else "Female"
         self.occupation = work
-        self.marital_status = "single"
         self.family_name = None
         self.first_name = name
         self.partner = None
         self.children = []
         self.parents = []
+
+    @classmethod
+    def generate_unique_id(cls):
+        while True:
+            new_id = random.randint(1000000, 9999999)
+            if new_id not in cls.existing_ids:
+                cls.existing_ids.add(new_id)
+                return new_id
 
     def set_partner(self, partner):
         self.partner = partner

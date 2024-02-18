@@ -83,3 +83,29 @@ def get_names(data):
     female_firstname = [names.first_name_female() for _ in range(females)]
 
     return female_firstname,male_firstname
+
+@time_it
+def assign_addresses_to_households(households, numberOfHousholds):
+    addresses = sampler.sample_household(numberOfHousholds)
+    house_addresses = sampler._house_address()["kommune_adresse"].tolist()
+    apartment_addresses = sampler._apartment_address()["kommune_adresse"].tolist()
+
+    addresses = [dict(zip(addresses, t)) for t in zip(*addresses.values())]
+    for household in households:
+        num_people_in_household = len(household.members)
+        suitable_address = next(
+            (addr for addr in addresses if addr["people"] >= num_people_in_household),
+            None,
+        )
+
+        a = (
+            random.choice(house_addresses)
+            if suitable_address["type"] in ["house", "terrace-house"]
+            else random.choice(apartment_addresses)
+        )
+
+        if suitable_address:
+            household.set_address(a)
+            addresses.remove(suitable_address)
+        else:
+            household.set_address("No suitable address found")

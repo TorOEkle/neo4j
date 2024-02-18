@@ -5,6 +5,8 @@ from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 from pathlib import Path
 
+datapath = Path("data").joinpath("matrikkel.zip")
+
 # setting seed
 np.random.seed(42)
 
@@ -51,7 +53,7 @@ def assign_bernoulli_group(array, group, p):
 ## Data wrappers
 def _house_address():
     address = read_csv_zip(
-        r'C:\Users\dgronner\learning\neo_Demo\neo4j\data\matrikkel.zip\matrikkelenAdresse.csv',
+        datapath / "matrikkelenAdresse.csv",
         sep=';',
         header=0,
         dtype={
@@ -77,14 +79,14 @@ def _house_address():
 
 def _apartment_address():
     region1 = read_csv_zip(
-        r'C:\Users\dgronner\learning\neo_Demo\neo4j\data\matrikkel.zip\matrikkelenAdresseLeilighetsnivaSandnes.csv',
+        datapath / "matrikkelenAdresseLeilighetsnivaSandnes.csv",
         sep=";",
         dtype={
             "uuidAtkomst": str,
         },
     )
     region2 = read_csv_zip(
-        r'C:\Users\dgronner\learning\neo_Demo\neo4j\data\matrikkel.zip\matrikkelenAdresseLeilighetsnivaStavanger.csv',
+        datapath / "matrikkelenAdresseLeilighetsnivaStavanger.csv",
         sep=";",
         dtype={
             "adressetilleggsnavn": str,
