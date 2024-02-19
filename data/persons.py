@@ -2,8 +2,9 @@ import random
 
 class Person:
     existing_ids = set()
-    def __init__(self, age, sex, work, name=None):
+    def __init__(self, age, sex, work, activity, name=None, ):
         self.personal_number = self.generate_unique_id()
+        self.activity = activity
         self.age = age
         self.sex = "Male" if sex ==1 else "Female"
         self.occupation = work

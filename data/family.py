@@ -1,10 +1,14 @@
 import random
 
 class Family:
+    next_id = 1 
     def __init__(self):
+        self.id = Family.next_id
+        Family.next_id += 1 
         self.family_members = []
 
-    def add_family(self, family):
+    def add_family(self, family,person):
+        person.family_id = family.id 
         self.family_members.append(family)
 
     def __str__(self):

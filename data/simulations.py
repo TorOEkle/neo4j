@@ -9,7 +9,8 @@ def create_families(persons):
 
     def add_person_and_descendants(person, family):
         if person not in family.family_members:
-            family.add_family(person)
+            family.family_members.append(person)
+            person.family_id = family.id
             for child in person.children:
                 add_person_and_descendants(child, family)
 
@@ -17,13 +18,13 @@ def create_families(persons):
         if any(person in family.family_members for family in families.values()):
             continue
 
-
         if person.family_name not in families:
             families[person.family_name] = Family()
-        
+
         add_person_and_descendants(person, families[person.family_name])
 
     return list(families.values())
+
 
 @time_it
 def create_households(young_adults, adults, seniors):

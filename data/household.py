@@ -1,5 +1,9 @@
 class Household:
+    next_id = 1
+    
     def __init__(self, Family):
+        self.id = Household.next_id
+        Household.next_id += 1  
         self.members = []
         self.address = None
         self.children_limit = 3
