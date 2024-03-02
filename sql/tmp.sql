@@ -5,7 +5,7 @@ CREATE TABLE Persons (
     age INT,
     sex VARCHAR(50),
     occupation VARCHAR(255),
-    activity VARCHAR(255)
+    activity VARCHAR(255),
     partner_personal_number INT NULL,
     family_id INT,
     FOREIGN KEY (partner_personal_number) REFERENCES Persons(personal_number),
@@ -13,14 +13,16 @@ CREATE TABLE Persons (
 );
 
 CREATE TABLE Families (
-    family_id INT  PRIMARY KEY,
-    family_name VARCHAR(255) NULL
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    family_id INT,
+    family_member INT,
+    FOREIGN KEY (family_member) REFERENCES Persons(personal_number)
 );
 
 
 CREATE TABLE Households (
     household_id INT PRIMARY KEY,
-    address VARCHAR(255),
+    address VARCHAR(255)
 );
 
 CREATE TABLE HouseholdMembers (
