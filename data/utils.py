@@ -9,7 +9,7 @@ from pathlib import Path
 
 names = Faker(["no_NO","en_US","en","sv_SE"])
 
-csv_path = Path("csv")
+csv_path = Path("data/csv")
 def export_persons_to_csv(persons):
     with open(csv_path / 'persons.csv', 'w', newline='') as file:
         fieldnames = ['personal_number', 'first_name', 'family_name', 'age', 'sex', 'occupation', 'activity', 'partner_personal_number', 'family_id']
@@ -25,7 +25,8 @@ def export_persons_to_csv(persons):
                 'occupation': person.occupation,
                 'activity': person.activity,
                 'partner_personal_number': person.partner.personal_number if person.partner else None,
-                'family_id': person.family_id
+                'family_id': person.family_id,
+
             })
 
 def export_families_to_csv(families):
@@ -76,17 +77,6 @@ def export_parent_child_to_csv(persons):
                 })
 
 
-
-def time_it(func):
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        end = time.time()
-        print(f"{func.__name__} executed in {(end - start):.4f} seconds.")
-        return result
-
-    return wrapper
-
 def write_to_csv(persons,families,households):
     export_persons_to_csv(persons)
     export_families_to_csv(families)
@@ -95,11 +85,11 @@ def write_to_csv(persons,families,households):
     export_parent_child_to_csv(persons)
 
 
-@time_it
+
 def get_last_names(N):
     return [names.last_name() for _ in range(N)]
 
-@time_it
+
 def extracurricular_activity(ages, p): 
     activities = ["Football", "American football", "Volleyball", "Tennis", "Basketball", "Chess"]
 
@@ -118,7 +108,7 @@ def extracurricular_activity(ages, p):
     assigned_activities = np.array(list(assigned_activities.values())) # Create a array from the dict. 
     return assigned_activities
 
-@time_it
+
 def segregate_persons_by_age(persons):
     children, young_adults, adults, seniors = [],[],[],[]
     for p in persons:
@@ -134,7 +124,7 @@ def segregate_persons_by_age(persons):
 
     return children, young_adults, adults, seniors
 
-@time_it
+
 def get_random_data(N):
     ages = sampler.sample_age(N)
     data = {
@@ -145,7 +135,7 @@ def get_random_data(N):
     }
     return data
 
-@time_it
+
 def people(data, N, female_names, male_names):
     persons = []
     for i in range(N):
@@ -157,7 +147,7 @@ def people(data, N, female_names, male_names):
         persons.append(person)
     return persons
 
-@time_it
+
 def get_names(data):
     males = np.count_nonzero(data['sex'] == 1)
     females = len(data["sex"]) - males
@@ -166,7 +156,7 @@ def get_names(data):
 
     return female_firstname,male_firstname
 
-@time_it
+
 def assign_addresses_to_households(households, numberOfHousholds):
     addresses = sampler.sample_household(numberOfHousholds)
     house_addresses = sampler._house_address()["kommune_adresse"].tolist()

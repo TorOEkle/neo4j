@@ -48,5 +48,5 @@ class Person:
         children_names = ", ".join(
             [c.first_name + " "+ str(c.age) for c in self.children]
         )
-        return (f"{self.first_name} {self.family_name} (Age: {self.age}, Sex: {self.sex}, {partner_info}, Parents: [{parent_names}], Children: [{children_names}])")
+        return (f"{self.first_name} {self.family_name} (Age: {self.age}, Sex: {self.sex}, Activity: {self.activity}, {partner_info}, Parents: [{parent_names}], Children: [{children_names}])")
     

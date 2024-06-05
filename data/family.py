@@ -19,9 +19,13 @@ class Family:
     def assign_parents(parents, child):
         possible_parents = [
             (p1, p2) for p1 in parents for p2 in parents
-            if p1.partner == p2 and p1 != p2 and p1.partner is not None
-            and child not in p1.children and child not in p2.children
+            if (
+                p1.partner == p2 and p1 != p2 and p1.partner is not None
+                and child not in p1.children and child not in p2.children
+                and p1.age >= child.age + 18 and p2.age >= child.age + 18
+            )
         ]
+        
         if possible_parents:
             selected_pair = random.choice(possible_parents)
             child.parents = list(selected_pair)
@@ -40,7 +44,7 @@ class Family:
                     child.set_family_name(combined_name)
             else:
                 male_parent = selected_pair[0] if selected_pair[0].sex == "Male" else selected_pair[1]
-                if child.family_name is not male_parent.family_name:
+                if child.family_name != male_parent.family_name:
                     child.set_family_name(male_parent.family_name)
 
             if child not in selected_pair[0].children:

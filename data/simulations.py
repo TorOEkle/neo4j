@@ -1,9 +1,7 @@
 from family import Family
 from household import Household
 from utils import segregate_persons_by_age,get_last_names
-from utils import time_it
 
-@time_it
 def create_families(persons):
     families = {}
 
@@ -26,7 +24,7 @@ def create_families(persons):
     return list(families.values())
 
 
-@time_it
+
 def create_households(young_adults, adults, seniors):
     households = []
     added_to_household = set()
@@ -57,7 +55,7 @@ def create_households(young_adults, adults, seniors):
 
     return households
 
-@time_it
+
 def set_family(persons):
     children, young_adults, adults, seniors = segregate_persons_by_age(persons)
     last_names = get_last_names(len(seniors))
