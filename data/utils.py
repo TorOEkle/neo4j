@@ -8,8 +8,8 @@ import csv
 from pathlib import Path
 
 names = Faker(["no_NO","en_US","en","sv_SE"])
-
 csv_path = Path("data/csv")
+
 def export_persons_to_csv(persons):
     with open(csv_path / 'persons.csv', 'w', newline='') as file:
         fieldnames = ['personal_number', 'first_name', 'family_name', 'age', 'sex', 'occupation', 'activity', 'partner_personal_number', 'family_id']
@@ -76,7 +76,6 @@ def export_parent_child_to_csv(persons):
                     'child_personal_number': child.personal_number
                 })
 
-
 def write_to_csv(persons,families,households):
     export_persons_to_csv(persons)
     export_families_to_csv(families)
@@ -84,11 +83,8 @@ def write_to_csv(persons,families,households):
     export_household_members_to_csv(households)
     export_parent_child_to_csv(persons)
 
-
-
 def get_last_names(N):
     return [names.last_name() for _ in range(N)]
-
 
 def extracurricular_activity(ages, p): 
     activities = ["Football", "American football", "Volleyball", "Tennis", "Basketball", "Chess"]
@@ -108,7 +104,6 @@ def extracurricular_activity(ages, p):
     assigned_activities = np.array(list(assigned_activities.values())) # Create a array from the dict. 
     return assigned_activities
 
-
 def segregate_persons_by_age(persons):
     children, young_adults, adults, seniors = [],[],[],[]
     for p in persons:
@@ -124,7 +119,6 @@ def segregate_persons_by_age(persons):
 
     return children, young_adults, adults, seniors
 
-
 def get_random_data(N):
     ages = sampler.sample_age(N)
     data = {
@@ -134,7 +128,6 @@ def get_random_data(N):
         "activity": extracurricular_activity(ages, p = 0.8)
     }
     return data
-
 
 def people(data, N, female_names, male_names):
     persons = []
@@ -147,7 +140,6 @@ def people(data, N, female_names, male_names):
         persons.append(person)
     return persons
 
-
 def get_names(data):
     males = np.count_nonzero(data['sex'] == 1)
     females = len(data["sex"]) - males
@@ -155,7 +147,6 @@ def get_names(data):
     female_firstname = [names.first_name_female() for _ in range(females)]
 
     return female_firstname,male_firstname
-
 
 def assign_addresses_to_households(households, numberOfHousholds):
     addresses = sampler.sample_household(numberOfHousholds)
@@ -182,5 +173,17 @@ def assign_addresses_to_households(households, numberOfHousholds):
         else:
             household.set_address("No suitable address found")
 
+def assign_persons_to_companies(persons, companies_df):
+    company_employee_count = {company['organisasjonsnummer']: 0 for _, company in companies_df.iterrows()}
 
-
+    for person in persons:
+        if person.occupation: 
+            available_companies = companies_df[companies_df['organisasjonsnummer'].isin(
+                [org_num for org_num, count in company_employee_count.items() if count < companies_df.loc[companies_df['organisasjonsnummer'] == org_num, 'antallAnsatte'].values[0]]
+            )]
+            
+            if not available_companies.empty:
+                company = available_companies.sample(n=1).iloc[0]
+                person.occupation = company['navn']  
+                company_id = company['organisasjonsnummer']
+                company_employee_count[company_id] += 1

@@ -197,7 +197,7 @@ def sample_work(ages):
     work = np.zeros(len(ages), dtype=np.bool_)  # Initialize all as 0
 
     # Update work status based on age conditions
-    assign_constant_group(work, group=between(ages, 0, 17), constant=True)
+    assign_constant_group(work, group=between(ages, 0, 17), constant=False)
     assign_bernoulli_group(work, group=between(ages, 18, 24), p=0.40)
     assign_bernoulli_group(work, group=between(ages, 25, 85), p=0.97)
 
@@ -207,7 +207,7 @@ def sample_work(ages):
 def sample_student(ages):
     student = np.zeros(len(ages), dtype=np.bool_)  # Initialize all as 0
 
-    assign_constant_group(student, group=between(ages, 0, 18), constant=True)
+    assign_constant_group(student, group=between(ages, 5, 18), constant=True)
     # if you are between 18 and 24, you are a student with 60% probability
     assign_bernoulli_group(student, group=between(ages, 19, 24), p=0.60)
 

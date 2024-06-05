@@ -1,8 +1,14 @@
 from neo4j import GraphDatabase
 
+NEO4J_URI="bolt://localhost:7687"#"neo4j+s://1fb1cc99.databases.neo4j.io"
+NEO4J_USERNAME="neo4j"
+NEO4J_PASSWORD="123456789"#"XFlYW2mLk4lErhhF0En15j4_ZME5fTbn4_uyaw-Tr-E"
+AURA_INSTANCEID="1fb1cc99"
+AURA_INSTANCENAME="Instance01"
+
 # Connect to Neo4j database
-uri = "bolt://localhost:7687"
-driver = GraphDatabase.driver(uri, auth=("neo4j", "123456789"))
+uri = NEO4J_URI
+driver = GraphDatabase.driver(uri, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
 
 def export_persons_to_neo4j(persons):
     with driver.session() as session:
@@ -82,7 +88,7 @@ def export_activities_to_neo4j(persons):
         for person in persons:
             if person.activity != None:  
                 session.run(
-                    "MERGE (a:Activity {name: $activity_name})",  # Use MERGE to avoid duplicate Activity nodes
+                    "MERGE (a:Activity {name: $activity_name})", 
                     activity_name=person.activity
                 )
                 session.run(
@@ -90,4 +96,40 @@ def export_activities_to_neo4j(persons):
                     "CREATE (p)-[:ENGAGES_IN]->(a)",
                     personal_number=person.personal_number,
                     activity_name=person.activity
+                )
+
+def export_companies_to_neo4j(companies_df):
+    with driver.session() as session:
+        for _, company in companies_df.iterrows():
+            session.run(
+                "CREATE (c:Company {organisasjonsnummer: $organisasjonsnummer, navn: $navn, organisasjonsform: $organisasjonsform, "
+                "registreringsdatoEnhetsregisteret: $registreringsdatoEnhetsregisteret, antallAnsatte: $antallAnsatte, "
+                "forretningsadresse: $forretningsadresse, stiftelsesdato: $stiftelsesdato, vedtektsdato: $vedtektsdato, "
+                "vedtektsfestetFormaal: $vedtektsfestetFormaal, aktivitet: $aktivitet, links: $links, "
+                "sisteInnsendteAarsregnskap: $sisteInnsendteAarsregnskap, kommune: $kommune, overordnetEnhet: $overordnetEnhet})",
+                organisasjonsnummer=company['organisasjonsnummer'],
+                navn=company['navn'],
+                organisasjonsform=company['organisasjonsform'],
+                registreringsdatoEnhetsregisteret=company['registreringsdatoEnhetsregisteret'],
+                antallAnsatte=company['antallAnsatte'],
+                forretningsadresse=company['forretningsadresse'],
+                stiftelsesdato=company['stiftelsesdato'],
+                vedtektsdato=company['vedtektsdato'],
+                vedtektsfestetFormaal=company['vedtektsfestetFormaal'],
+                aktivitet=company['aktivitet'],
+                links=company['links'],
+                sisteInnsendteAarsregnskap=company['sisteInnsendteAarsregnskap'],
+                kommune=company['kommune'],
+                overordnetEnhet=company['overordnetEnhet']
+            )
+
+def export_person_company_relationships_to_neo4j(persons):
+    with driver.session() as session:
+        for person in persons:
+            if person.occupation:  # Only create relationship if the person works
+                session.run(
+                    "MATCH (p:Person {personal_number: $personal_number}), (c:Company {navn: $company_name}) "
+                    "CREATE (p)-[:WORKS_AT]->(c)",
+                    personal_number=person.personal_number,
+                    company_name=person.occupation
                 )
