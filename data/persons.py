@@ -6,7 +6,7 @@ class Person:
         self.personal_number = self.generate_unique_id()
         self.activity = activity
         self.age = age
-        self.sex = "Male" if sex ==1 else "Female"
+        self.sex = sex
         self.occupation = work
         self.family_name = None
         self.first_name = name

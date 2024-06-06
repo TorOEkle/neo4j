@@ -94,7 +94,7 @@ def extracurricular_activity(ages, p):
 
     # Assign a random activity to each student
     for person in range(len(ages)):
-        if 6 <= ages[person] <= 18 and random.random() < p: # Set limit for age range (can change this) + prob p for activity. 
+        if 6 <= ages[person] <= 25 and random.random() < p: # Set limit for age range (can change this) + prob p for activity. 
             assigned_activities[person] = random.choice(activities)
         else:
             assigned_activities[person] = None
@@ -134,9 +134,11 @@ def people(data, N, female_names, male_names):
     for i in range(N):
         if data["sex"][i] == 1:
             name = male_names.pop()
+            sex = "Male"
         else:
             name = female_names.pop()
-        person = Person(age=data["age"][i], sex=data["sex"][i], work=data["work"][i],activity=data["activity"][i], name=name)
+            sex = "Female"
+        person = Person(age=data["age"][i], sex=sex, work=data["work"][i],activity=data["activity"][i], name=name)
         persons.append(person)
     return persons
 
