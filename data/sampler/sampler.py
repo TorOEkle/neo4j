@@ -5,7 +5,7 @@ from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 from pathlib import Path
 
-datapath = Path("data").joinpath("matrikkel.zip")
+datapath = Path("matrikkel.zip")
 
 # setting seed
 np.random.seed(42)
@@ -166,22 +166,24 @@ def sample_feature(f):
 
 
 def sample_age(size):
-    # Define the age intervals and corresponding probabilities for each year
-    age_intervals = np.arange(0, 83)
+    # Define the age intervals from 0 to 100
+    age_intervals = np.arange(0, 100)
+    
     age_probs = np.array([
-        0.006, 0.008, 0.01, 0.012, 0.015, 0.018, 0.022, 0.025, 0.028, 0.03,
-        0.032, 0.034, 0.036, 0.038, 0.04, 0.041, 0.042, 0.043, 0.044, 0.044,
-        0.043, 0.042, 0.041, 0.04, 0.039, 0.037, 0.036, 0.035, 0.034, 0.033,
-        0.032, 0.031, 0.031, 0.031, 0.031, 0.032, 0.033, 0.034, 0.035, 0.036,
-        0.038, 0.04, 0.042, 0.044, 0.046, 0.048, 0.05, 0.052, 0.054, 0.056,
-        0.057, 0.058, 0.058, 0.058, 0.058, 0.057, 0.056, 0.055, 0.054, 0.053,
-        0.052, 0.051, 0.05, 0.049, 0.048, 0.047, 0.046, 0.045, 0.044, 0.043,
-        0.042, 0.041, 0.04, 0.039, 0.038, 0.037, 0.036, 0.035, 0.034, 0.033,
-        0.032, 0.031, 0.03
+        0.006, 0.008, 0.01, 0.012, 0.015, 0.018, 0.022, 0.025, 0.028, 0.03,  # 0-9
+        0.032, 0.034, 0.036, 0.038, 0.04, 0.041, 0.042, 0.043, 0.044, 0.044,  # 10-19
+        0.043, 0.042, 0.041, 0.04, 0.039, 0.037, 0.036, 0.035, 0.034, 0.033,  # 20-29
+        0.032, 0.031, 0.031, 0.031, 0.031, 0.032, 0.033, 0.034, 0.035, 0.036,  # 30-39
+        0.038, 0.04, 0.042, 0.044, 0.046, 0.048, 0.05, 0.052, 0.054, 0.056,  # 40-49
+        0.057, 0.058, 0.058, 0.058, 0.058, 0.057, 0.056, 0.055, 0.054, 0.053,  # 50-59
+        0.052, 0.051, 0.05, 0.049, 0.048, 0.047, 0.046, 0.045, 0.044, 0.043,  # 60-69
+        0.042, 0.041, 0.04, 0.039, 0.038, 0.037, 0.036, 0.035, 0.034, 0.033,  # 70-79
+        0.03, 0.029, 0.025, 0.02, 0.015, 0.01, 0.008, 0.006, 0.004, 0.002,    # 80-89
+        0.0015, 0.001, 0.0008, 0.0006, 0.0004, 0.0002, 0.0001, 0.00005, 0.00002, 0.00001 # 90-99
     ])
 
     # Normalize age_probs to sum to 1
-    age_probs = np.array(age_probs) / np.sum(age_probs)
+    age_probs /= age_probs.sum()
 
     # Generate the Age column
     return np.random.choice(age_intervals, size=size, p=age_probs)
@@ -190,7 +192,6 @@ def sample_age(size):
 def sample_sex(size):
     # Generate the Sex column
     return bernoulli_trial(p=0.5, size=size)
-
 
 def sample_work(ages):
     # Generate the Work column based on age
@@ -225,7 +226,7 @@ def sample_household(size):
             "size": range(100, 200),         # Size of the house (between 100 and 200 square meters)
             "lot_size": range(200, 500),     # Lot size (between 200 and 500 square meters)
             "build_year": range(1970, 2019),
-            "people": range(3, 7),          # Number of people living in the household (between 1 and the number of rooms)
+            "people": range(3, 10),          # Number of people living in the household (between 1 and the number of rooms)
         },
         {
             "type": "apartment",
@@ -235,7 +236,7 @@ def sample_household(size):
             "size": range(75, 150),          # Size of the house (between 75 and 150 square meters)
             "lot_size": range(100, 300),     # Lot size (between 100 and 300 square meters)
             "build_year": range(1980, 2019),
-            "people": range(2, 5),          # Number of people living in the household (between 1 and the number of rooms)
+            "people": range(2, 10),          # Number of people living in the household (between 1 and the number of rooms)
         },
         {
             "type": "terrace-house",
@@ -245,7 +246,7 @@ def sample_household(size):
             "size": range(50, 100),          # Size of the apartment (between 50 and 100 square meters)
             "lot_size": 0,                   # Lot size (0 for apartments)
             "build_year": range(1990, 2019),
-            "people": range(2, 4),          # Number of people living in the household (between 1 and the number of rooms)
+            "people": range(2, 10),          # Number of people living in the household (between 1 and the number of rooms)
         },
     ]
 

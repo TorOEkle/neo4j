@@ -2,12 +2,12 @@ import random
 
 class Person:
     existing_ids = set()
-    def __init__(self, age, sex, work, activity, name=None, ):
+    def __init__(self, age:int, sex:int, activity:str, name=None, ):
         self.personal_number = self.generate_unique_id()
         self.activity = activity
         self.age = age
         self.sex = sex
-        self.occupation = work
+        self.occupation = None
         self.family_name = None
         self.first_name = name
         self.partner = None
@@ -48,5 +48,8 @@ class Person:
         children_names = ", ".join(
             [c.first_name + " "+ str(c.age) for c in self.children]
         )
-        return (f"{self.first_name} {self.family_name} (Age: {self.age}, Sex: {self.sex}, Ocupation: {self.occupation}, Activity: {self.activity}, {partner_info}, Parents: [{parent_names}], Children: [{children_names}])")
+        return (f"{self.first_name} {self.family_name} (Age: {self.age},  {partner_info}, Parents: [{parent_names}], Children: [{children_names}])")
     
+
+
+    #Sex: {self.sex}, Ocupation: {self.occupation}, Activity: {self.activity},

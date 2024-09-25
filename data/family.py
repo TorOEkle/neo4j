@@ -1,4 +1,6 @@
 import random
+from faker import Faker
+names = Faker(["no_NO","en_US","en","sv_SE"])
 
 class Family:
     next_id = 1 
@@ -23,9 +25,10 @@ class Family:
                 p1.partner == p2 and p1 != p2 and p1.partner is not None
                 and child not in p1.children and child not in p2.children
                 and p1.age >= child.age + 18 and p2.age >= child.age + 18
+                and len(p1.children) <= 5
             )
         ]
-        
+
         if possible_parents:
             selected_pair = random.choice(possible_parents)
             child.parents = list(selected_pair)
@@ -34,14 +37,14 @@ class Family:
                 if "-" in selected_pair[0].family_name:
                     child.set_family_name(selected_pair[0].family_name)
                 else:
-                    combined_name = (
-                        f"{selected_pair[0].family_name}-{selected_pair[1].family_name}"
-                        if selected_pair[0].sex == "Female"
-                        else f"{selected_pair[1].family_name}-{selected_pair[0].family_name}"
-                    )
-                    combined_names = sorted([selected_pair[0].family_name, selected_pair[1].family_name])
-                    combined_name = f"{combined_names[0]}-{combined_names[1]}"
-                    child.set_family_name(combined_name)
+                        combined_name = (
+                            f"{selected_pair[0].family_name}-{selected_pair[1].family_name}"
+                            if selected_pair[0].sex == "Female"
+                            else f"{selected_pair[1].family_name}-{selected_pair[0].family_name}"
+                        )
+                        combined_names = sorted([selected_pair[0].family_name, selected_pair[1].family_name])
+                        combined_name = f"{combined_names[0]}-{combined_names[1]}" if len(combined_names) >0 else combined_names[0]
+                        child.set_family_name(combined_name)
             else:
                 male_parent = selected_pair[0] if selected_pair[0].sex == "Male" else selected_pair[1]
                 if child.family_name != male_parent.family_name:
@@ -52,7 +55,9 @@ class Family:
             if child not in selected_pair[1].children:
                 selected_pair[1].add_child(child)
         else:
-            print("No suitable parents found for", child.first_name)
+            print("No suitable parents found for", child.first_name, child.age)
+            child.family_name = names.last_name()
+
 
     @staticmethod
     def set_partners(persons):
@@ -66,21 +71,21 @@ class Family:
                 females.append(person)
 
 
-        while males and females:
-            male = males.pop(0)
-            female = females.pop(0)
-            if (len(male.parents) == 0 and len(female.parents) == 0 )or (male.parents[0] not in female.parents):
-                male.set_partner(female)
-            else:
-                unpaired_males.append(male)
-                unpaired_females.append(female)
+            while males and females:
+                male = males.pop(0)
+                female = females.pop(0)
+                if (len(male.parents) == 0 or len(female.parents) == 0 ) or (male.parents[0] not in female.parents):
+                    male.set_partner(female)
+                else:
+                    unpaired_males.append(male)
+                    unpaired_females.append(female)
 
         reminding = unpaired_males + unpaired_females
         for i in range(0, len(reminding), 2):
             if i + 1 < len(reminding):
                 person1 = reminding[i]
                 person2 = reminding[i+1]
-                if (len(person1.parents)==0 and len(person2.parents) == 0 )or (person1.parents[0] not in person2.parents):
+                if (len(person1.parents)==0 or len(person2.parents) == 0 ) or (person1.parents[0] not in person2.parents):
                     person1.set_partner(person2)
 
     def __str__(self):

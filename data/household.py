@@ -6,7 +6,7 @@ class Household:
         Household.next_id += 1  
         self.members = []
         self.address = None
-        self.children_limit = 3
+        self.children_limit = 5
         self.extended_family = Family
 
     def add_member(self, person):
@@ -32,5 +32,5 @@ class Household:
         address_description = (
             f"Address: {self.address}" if self.address else "No Address"
         )
-        household_members = "\n  ".join([str(member) for member in self.members])
+        household_members = "\n".join([str(member) for member in self.members])
         return f"Household of the Family living in \n  {address_description}\n  Members:\n{household_members}\n"

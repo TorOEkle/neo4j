@@ -6,6 +6,8 @@ from persons import Person
 import numpy as np 
 import csv
 from pathlib import Path
+from typing import List
+import pandas as pd
 
 names = Faker(["no_NO","en_US","en","sv_SE"])
 csv_path = Path("data/csv")
@@ -107,15 +109,15 @@ def extracurricular_activity(ages, p):
 def segregate_persons_by_age(persons):
     children, young_adults, adults, seniors = [],[],[],[]
     for p in persons:
-        if p.age < 18:
+        if p.age <= 18:
             children.append(p)
-        elif 18 <= p.age <= 25 :
+        elif 19 <= p.age <= 24 :
             young_adults.append(p)
-
-        elif 26 <= p.age < 55:
+        elif 25 <= p.age < 62:
             adults.append(p)
         else:
             seniors.append(p)
+            p.occupation = 'Retired'
 
     return children, young_adults, adults, seniors
 
@@ -124,7 +126,6 @@ def get_random_data(N):
     data = {
         "age": ages,
         "sex":  sampler.sample_sex(N) ,
-        "work": sampler.sample_work(ages),
         "activity": extracurricular_activity(ages, p = 0.8)
     }
     return data
@@ -138,7 +139,7 @@ def people(data, N, female_names, male_names):
         else:
             name = female_names.pop()
             sex = "Female"
-        person = Person(age=data["age"][i], sex=sex, work=data["work"][i],activity=data["activity"][i], name=name)
+        person = Person(age=data["age"][i], sex=sex,activity=data["activity"][i], name=name)
         persons.append(person)
     return persons
 
@@ -154,6 +155,8 @@ def assign_addresses_to_households(households, numberOfHousholds):
     addresses = sampler.sample_household(numberOfHousholds)
     house_addresses = sampler._house_address()["kommune_adresse"].tolist()
     apartment_addresses = sampler._apartment_address()["kommune_adresse"].tolist()
+
+    
 
     addresses = [dict(zip(addresses, t)) for t in zip(*addresses.values())]
     for household in households:
@@ -175,17 +178,79 @@ def assign_addresses_to_households(households, numberOfHousholds):
         else:
             household.set_address("No suitable address found")
 
-def assign_persons_to_companies(persons, companies_df):
-    company_employee_count = {company['organisasjonsnummer']: 0 for _, company in companies_df.iterrows()}
+def workForce(young_adults, adults,):
 
-    for person in persons:
-        if person.occupation: 
-            available_companies = companies_df[companies_df['organisasjonsnummer'].isin(
-                [org_num for org_num, count in company_employee_count.items() if count < companies_df.loc[companies_df['organisasjonsnummer'] == org_num, 'antallAnsatte'].values[0]]
-            )]
-            
-            if not available_companies.empty:
-                company = available_companies.sample(n=1).iloc[0]
-                person.occupation = company['navn']  
-                company_id = company['organisasjonsnummer']
+    # Randomly select 39% of age_19_24_group to be students
+    num_students = int(0.39 * len(young_adults))
+    students = random.sample(young_adults, num_students)
+
+    for p in students:
+        p.occupation = 'Student'
+
+    # Remove students from the main group
+    remaining_group = [p for p in young_adults + adults if p not in students]
+    
+    num_unemployed = int(0.04 * len(remaining_group))
+    unemployed = random.sample(remaining_group, num_unemployed)
+
+    for p in unemployed:
+        p.occupation = 'Unemployed'
+
+    # The rest go into the workforce
+    workforce = [p for p in remaining_group if p not in unemployed]
+
+    for p in workforce:
+        p.occupation = 'workforce'
+
+def assign_persons_to_companies(persons:List[Person], companies_df:pd.DataFrame, management_counts:pd.DataFrame)-> None:
+
+    # Merge companies_df with management_counts
+    companies_df = companies_df.merge(management_counts, on='orgnr', how='left')
+
+    # Fill missing management counts with 1 (assuming at least one manager)
+    companies_df['management_count'] = companies_df['management_count'].fillna(1).astype(int)
+
+    # Calculate the number of employee positions
+    companies_df['employee_count'] = companies_df['antallAnsatte'] - companies_df['management_count']
+    # Ensure no negative employee counts
+    companies_df['employee_count'] = companies_df['employee_count'].apply(lambda x: max(0, x))
+
+    # Initialize the employee count dictionary
+    company_employee_count = {company['orgnr']: 0 for _, company in companies_df.iterrows()}
+
+    # Shuffle the persons list to randomize assignments
+    np.random.shuffle(persons)
+
+    # Index to keep track of the current position in the persons list
+    person_index = 0
+    total_persons = len(persons)
+
+    # Assign management positions first
+    for _, company in companies_df.iterrows():
+        company_id = company['orgnr']
+        management_slots = company['management_count']
+        assigned_management = 0
+
+        while assigned_management < management_slots and person_index < total_persons:
+            person = persons[person_index]
+            person_index += 1
+            if  person.occupation == 'workforce':
+                person.occupation = company['navn']
+                person.position = 'management'
                 company_employee_count[company_id] += 1
+                assigned_management += 1
+
+    # Assign remaining employee positions
+    for _, company in companies_df.iterrows():
+        company_id = company['orgnr']
+        employee_slots = company['employee_count']
+        assigned_employees = 0
+
+        while assigned_employees < employee_slots and person_index < total_persons:
+            person = persons[person_index]
+            person_index += 1
+            if  person.occupation == 'workforce':
+                person.occupation = company['navn']
+                person.position = 'employee'
+                company_employee_count[company_id] += 1
+                assigned_employees += 1

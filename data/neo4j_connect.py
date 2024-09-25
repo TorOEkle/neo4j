@@ -1,4 +1,5 @@
 from neo4j import GraphDatabase
+import pandas as pd
 
 NEO4J_URI="bolt://localhost:7687"#"neo4j+s://1fb1cc99.databases.neo4j.io"
 NEO4J_USERNAME="neo4j"
@@ -98,16 +99,16 @@ def export_activities_to_neo4j(persons):
                     activity_name=person.activity
                 )
 
-def export_companies_to_neo4j(companies_df):
+def export_companies_to_neo4j(companies:pd.DataFrame)->None:
     with driver.session() as session:
-        for _, company in companies_df.iterrows():
+        for _, company in companies.iterrows():
             session.run(
-                "CREATE (c:Company {organisasjonsnummer: $organisasjonsnummer, navn: $navn, organisasjonsform: $organisasjonsform, "
+                "MERGE (c:Company {organisasjonsnummer: $organisasjonsnummer, navn: $navn, organisasjonsform: $organisasjonsform, "
                 "registreringsdatoEnhetsregisteret: $registreringsdatoEnhetsregisteret, antallAnsatte: $antallAnsatte, "
                 "forretningsadresse: $forretningsadresse, stiftelsesdato: $stiftelsesdato, vedtektsdato: $vedtektsdato, "
                 "vedtektsfestetFormaal: $vedtektsfestetFormaal, aktivitet: $aktivitet, links: $links, "
                 "sisteInnsendteAarsregnskap: $sisteInnsendteAarsregnskap, kommune: $kommune, overordnetEnhet: $overordnetEnhet})",
-                organisasjonsnummer=company['organisasjonsnummer'],
+                organisasjonsnummer=company['orgnr'],
                 navn=company['navn'],
                 organisasjonsform=company['organisasjonsform'],
                 registreringsdatoEnhetsregisteret=company['registreringsdatoEnhetsregisteret'],
@@ -124,6 +125,7 @@ def export_companies_to_neo4j(companies_df):
             )
 
 def export_person_company_relationships_to_neo4j(persons):
+
     with driver.session() as session:
         for person in persons:
             if person.occupation:  # Only create relationship if the person works
@@ -133,3 +135,24 @@ def export_person_company_relationships_to_neo4j(persons):
                     personal_number=person.personal_number,
                     company_name=person.occupation
                 )
+
+def export_idustrial_codes_to_neo4j(code_description:pd.DataFrame)->None:
+    with driver.session() as session:
+        for _, code in code_description.iterrows():
+            session.run(
+                "CREATE (i:IndustrialCode {Code: $code, Description: $description})",
+                code=code['industrial_code'],
+                description=code['description']
+
+            )
+
+def company_industrialCode_relationship(company:pd.DataFrame)->None:
+    with driver.session() as session:
+        for _, c in company.iterrows():
+            
+            session.run(
+            "MATCH(c:Company {organisasjonsnummer:$orgnr}), (i:IndustrialCode {Code: $industrial_code})"
+            "CREATE(c)-[:BELONGSTO]->(i)",
+            orgnr=c['orgnr'],
+            industrial_code=c['industrial_code']
+            )

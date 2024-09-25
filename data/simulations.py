@@ -1,6 +1,6 @@
 from family import Family
 from household import Household
-from utils import segregate_persons_by_age,get_last_names
+from utils import get_last_names
 
 def create_families(persons):
     families = {}
@@ -23,8 +23,6 @@ def create_families(persons):
 
     return list(families.values())
 
-
-
 def create_households(young_adults, adults, seniors):
     households = []
     added_to_household = set()
@@ -42,7 +40,7 @@ def create_households(young_adults, adults, seniors):
             added_to_household.add(person.partner)
         
         for child in person.children:
-            if child not in added_to_household and child.age < 18:
+            if child not in added_to_household and child.age <= 18:
                 household.add_member(child)
                 added_to_household.add(child)
         
@@ -55,9 +53,9 @@ def create_households(young_adults, adults, seniors):
 
     return households
 
+def set_family(children, young_adults, adults, seniors):
 
-def set_family(persons):
-    children, young_adults, adults, seniors = segregate_persons_by_age(persons)
+    persons = children + young_adults+ adults+ seniors
     last_names = get_last_names(len(seniors))
 
     Family.set_partners(seniors)
@@ -72,7 +70,6 @@ def set_family(persons):
     for adult in adults:
         Family.assign_parents(seniors,adult)
     Family.set_partners(adults)
-
 
     for child in children + young_adults:
         Family.assign_parents(adults,child)
