@@ -5,7 +5,7 @@ from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
 from pathlib import Path
 
-datapath = Path("matrikkel.zip")
+datapath = Path("data")/Path("matrikkel.zip")
 
 # setting seed
 np.random.seed(42)

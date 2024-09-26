@@ -73,13 +73,7 @@ def export_partners_to_neo4j(persons):
             if person.partner:
                 session.run(
                     "MATCH (p1:Person {personal_number: $p1_personal_number}), (p2:Person {personal_number: $p2_personal_number}) "
-                    "MERGE (p1)-[:PARTNER_OF]->(p2)",
-                    p1_personal_number=person.personal_number,
-                    p2_personal_number=person.partner.personal_number
-                )
-                session.run(
-                    "MATCH (p1:Person {personal_number: $p1_personal_number}), (p2:Person {personal_number: $p2_personal_number}) "
-                    "MERGE (p2)-[:PARTNER_OF]->(p1)",
+                    "MERGE (p1)-[:PARTNER_OF]-(p2)",
                     p1_personal_number=person.personal_number,
                     p2_personal_number=person.partner.personal_number
                 )

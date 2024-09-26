@@ -2,7 +2,7 @@ import pandas as pd
 
 from simulations import set_family
 from utils import people,get_names ,get_random_data, assign_addresses_to_households, write_to_csv,segregate_persons_by_age,workForce,assign_persons_to_companies
-from neo4j_connect import export_persons_to_neo4j, export_families_to_neo4j, export_households_to_neo4j, export_parent_child_to_neo4j,export_partners_to_neo4j,export_activities_to_neo4j, export_companies_to_neo4j,export_idustrial_codes_to_neo4j,company_industrialCode_relationship
+from neo4j_connect import export_person_company_relationships_to_neo4j,export_persons_to_neo4j, export_families_to_neo4j, export_households_to_neo4j, export_parent_child_to_neo4j,export_partners_to_neo4j,export_activities_to_neo4j, export_companies_to_neo4j,export_idustrial_codes_to_neo4j,company_industrialCode_relationship
 
 def main():
 
@@ -50,7 +50,7 @@ def main():
     management_counts = roles.groupby('orgnr')['personal_number'].nunique().reset_index()
     management_counts.columns = ['orgnr', 'management_count']
 
-    N = 50
+    N = 300000
     data = get_random_data(N)
     female_firstname, male_firstname = get_names(data)
 
@@ -63,8 +63,6 @@ def main():
     numberOfHouseholds = len(households)
 
     assign_addresses_to_households(households, numberOfHouseholds)
-    
-    print("Finished creating people and family connections \n Starting getting people into work ")
     assign_persons_to_companies(persons=persons,companies_df=merged,management_counts=management_counts)
 
     print("loading to Neo4j")
@@ -76,9 +74,9 @@ def main():
     export_partners_to_neo4j(persons)
     export_activities_to_neo4j(persons)
     export_companies_to_neo4j(merged)
+    export_person_company_relationships_to_neo4j(persons=persons)
     export_idustrial_codes_to_neo4j(code_description)
     company_industrialCode_relationship(merged)
-
 
 if __name__ == "__main__":
     main()

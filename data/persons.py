@@ -49,7 +49,3 @@ class Person:
             [c.first_name + " "+ str(c.age) for c in self.children]
         )
         return (f"{self.first_name} {self.family_name} (Age: {self.age},  {partner_info}, Parents: [{parent_names}], Children: [{children_names}])")
-    
-
-
-    #Sex: {self.sex}, Ocupation: {self.occupation}, Activity: {self.activity},

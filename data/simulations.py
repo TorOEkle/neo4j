@@ -75,8 +75,9 @@ def set_family(children, young_adults, adults, seniors):
         Family.assign_parents(adults,child)
     Family.set_partners(young_adults)
 
-
-    families = create_families(persons)
+    ## persons with no parents
+    no_parents = [p for p in persons if p.parents == []]
+    families = create_families(no_parents)
     households = create_households(young_adults, adults, seniors)
 
     return families, households
