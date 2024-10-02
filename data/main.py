@@ -1,7 +1,7 @@
 import pandas as pd
 
 from simulations import set_family
-from utils import people,get_names ,get_random_data, assign_addresses_to_households, write_to_csv,segregate_persons_by_age,workForce,assign_persons_to_companies
+from utils import people,get_names ,get_random_data, assign_addresses_to_households,segregate_persons_by_age,workForce,assign_persons_to_companies
 from neo4j_connect import export_person_company_relationships_to_neo4j,export_persons_to_neo4j, export_families_to_neo4j, export_households_to_neo4j, export_parent_child_to_neo4j,export_partners_to_neo4j,export_activities_to_neo4j, export_companies_to_neo4j,export_idustrial_codes_to_neo4j,company_industrialCode_relationship
 
 def main():
@@ -50,7 +50,7 @@ def main():
     management_counts = roles.groupby('orgnr')['personal_number'].nunique().reset_index()
     management_counts.columns = ['orgnr', 'management_count']
 
-    N = 300000
+    N = 100000
     data = get_random_data(N)
     female_firstname, male_firstname = get_names(data)
 

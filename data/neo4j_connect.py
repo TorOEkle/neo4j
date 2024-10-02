@@ -1,9 +1,10 @@
 from neo4j import GraphDatabase
 import pandas as pd
 
-NEO4J_URI="bolt://localhost:7687"#"neo4j+s://1fb1cc99.databases.neo4j.io"
+
+NEO4J_URI="bolt://localhost:7687"
 NEO4J_USERNAME="neo4j"
-NEO4J_PASSWORD="123456789"#"XFlYW2mLk4lErhhF0En15j4_ZME5fTbn4_uyaw-Tr-E"
+NEO4J_PASSWORD="123456789"
 AURA_INSTANCEID="1fb1cc99"
 AURA_INSTANCENAME="Instance01"
 
@@ -141,6 +142,7 @@ def export_idustrial_codes_to_neo4j(code_description:pd.DataFrame)->None:
             )
 
 def company_industrialCode_relationship(company:pd.DataFrame)->None:
+
     with driver.session() as session:
         for _, c in company.iterrows():
             
@@ -150,3 +152,24 @@ def company_industrialCode_relationship(company:pd.DataFrame)->None:
             orgnr=c['orgnr'],
             industrial_code=c['industrial_code']
             )
+
+# Function to export and save Cypher export to a file
+def export_to_cypher_file():
+    with driver.session() as session:
+        # Run the export command with stream:true
+        result = session.run("CALL apoc.export.cypher.all(null, {stream: true, useOptimizations: { type: 'UNWIND_BATCH', unwindBatchSize: 20 }}) YIELD cypherStatements RETURN cypherStatements")
+        
+        # Open a local file to write the export data with UTF-8 encoding
+        with open("export.cypher", "w", encoding="utf-8") as f:
+            for record in result:
+                # Write each piece of streamed data to the file
+                f.write(record["cypherStatements"] + "\n")
+
+    print("Export completed and saved to export.cypher")
+
+if __name__ =="__main__":
+    # Execute the function
+    export_to_cypher_file()
+
+    # Close the driver connection
+    driver.close()

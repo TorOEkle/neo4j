@@ -1,5 +1,6 @@
 import random
 from faker import Faker
+from tqdm import tqdm
 names = Faker(["no_NO","en_US","en","sv_SE"])
 
 class Family:
@@ -19,15 +20,23 @@ class Family:
     
     @staticmethod
     def assign_parents(parents, child):
-        possible_parents = [
-            (p1, p2) for p1 in parents for p2 in parents
-            if (
-                p1.partner == p2 and p1 != p2 and p1.partner is not None
-                and child not in p1.children and child not in p2.children
-                and p1.age >= child.age + 18 and p2.age >= child.age + 18
-                and len(p1.children) <= 5
-            )
-        ]
+        parent_set = set(parents)
+        couples_set = set()
+        possible_parents = []
+
+        for p1 in parents:
+            p2 = p1.partner
+            if p2 is not None and p2 in parent_set and p1 != p2:
+                # Create a unique key for the couple to avoid duplicates
+                couple_key = tuple(sorted([p1.personal_number, p2.personal_number]))
+                if couple_key not in couples_set:
+                    couples_set.add(couple_key)
+                    if (
+                        child not in p1.children and child not in p2.children
+                        and p1.age >= child.age + 18 and p2.age >= child.age + 18
+                        and len(p1.children) <= 5
+                    ):
+                        possible_parents.append((p1, p2))
 
         if possible_parents:
             selected_pair = random.choice(possible_parents)
@@ -37,14 +46,9 @@ class Family:
                 if "-" in selected_pair[0].family_name:
                     child.set_family_name(selected_pair[0].family_name)
                 else:
-                        combined_name = (
-                            f"{selected_pair[0].family_name}-{selected_pair[1].family_name}"
-                            if selected_pair[0].sex == "Female"
-                            else f"{selected_pair[1].family_name}-{selected_pair[0].family_name}"
-                        )
-                        combined_names = sorted([selected_pair[0].family_name, selected_pair[1].family_name])
-                        combined_name = f"{combined_names[0]}-{combined_names[1]}" if len(combined_names) >0 else combined_names[0]
-                        child.set_family_name(combined_name)
+                    combined_names = sorted([selected_pair[0].family_name, selected_pair[1].family_name])
+                    combined_name = f"{combined_names[0]}-{combined_names[1]}"
+                    child.set_family_name(combined_name)
             else:
                 male_parent = selected_pair[0] if selected_pair[0].sex == "Male" else selected_pair[1]
                 if child.family_name != male_parent.family_name:
@@ -57,6 +61,46 @@ class Family:
         else:
             print("No suitable parents found for", child.first_name, child.age)
             child.family_name = names.last_name()
+
+    # def assign_parents(parents, child):
+    #     possible_parents = [
+    #         (p1, p2) for p1 in parents for p2 in parents
+    #         if (
+    #             p1.partner == p2 and p1 != p2 and p1.partner is not None
+    #             and child not in p1.children and child not in p2.children
+    #             and p1.age >= child.age + 18 and p2.age >= child.age + 18
+    #             and len(p1.children) <= 5
+    #         )
+    #     ]
+
+    #     if possible_parents:
+    #         selected_pair = random.choice(possible_parents)
+    #         child.parents = list(selected_pair)
+
+    #         if selected_pair[0].age < 55 and selected_pair[1].age < 55:
+    #             if "-" in selected_pair[0].family_name:
+    #                 child.set_family_name(selected_pair[0].family_name)
+    #             else:
+    #                     combined_name = (
+    #                         f"{selected_pair[0].family_name}-{selected_pair[1].family_name}"
+    #                         if selected_pair[0].sex == "Female"
+    #                         else f"{selected_pair[1].family_name}-{selected_pair[0].family_name}"
+    #                     )
+    #                     combined_names = sorted([selected_pair[0].family_name, selected_pair[1].family_name])
+    #                     combined_name = f"{combined_names[0]}-{combined_names[1]}" if len(combined_names) >0 else combined_names[0]
+    #                     child.set_family_name(combined_name)
+    #         else:
+    #             male_parent = selected_pair[0] if selected_pair[0].sex == "Male" else selected_pair[1]
+    #             if child.family_name != male_parent.family_name:
+    #                 child.set_family_name(male_parent.family_name)
+
+    #         if child not in selected_pair[0].children:
+    #             selected_pair[0].add_child(child)
+    #         if child not in selected_pair[1].children:
+    #             selected_pair[1].add_child(child)
+    #     else:
+    #         print("No suitable parents found for", child.first_name, child.age)
+    #         child.family_name = names.last_name()
 
 
     @staticmethod
