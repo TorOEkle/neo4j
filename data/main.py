@@ -2,7 +2,7 @@ import pandas as pd
 
 from simulations import set_family
 from utils import people,get_names ,get_random_data, assign_addresses_to_households,segregate_persons_by_age,workForce,assign_persons_to_companies
-from neo4j_connect import export_person_company_relationships_to_neo4j,export_persons_to_neo4j, export_families_to_neo4j, export_households_to_neo4j, export_parent_child_to_neo4j,export_partners_to_neo4j,export_activities_to_neo4j, export_companies_to_neo4j,export_idustrial_codes_to_neo4j,company_industrialCode_relationship
+from neo4j_connect import export_person_company_relationships_to_neo4j,export_persons_to_neo4j, export_families_to_neo4j, export_households_to_neo4j, export_parent_child_to_neo4j,export_partners_to_neo4j,export_activities_to_neo4j, export_companies_to_neo4j,export_industrial_codes_to_neo4j,company_industrialCode_relationship
 
 def main():
 
@@ -13,12 +13,12 @@ def main():
     companies = "https://raw.githubusercontent.com/TorOEkle/neo4j/refs/heads/company_data/data/csv_files/enheter.csv"
     roles_in_companies = "https://raw.githubusercontent.com/TorOEkle/neo4j/refs/heads/company_data/data/csv_files/roles_persons.csv"
 
-    # Load industrial codes description
     code_description = pd.read_csv(industrial_codes_description)
     code_description.rename(columns={
         'naeringskode': 'industrial_code',
         'naeringsbeskrivelse': 'description'
     }, inplace=True)
+    code_description = code_description.dropna()
 
     # List of næringskoder files and their corresponding code columns
     næringskoder_files = [næringskoder_1, næringskoder_2, næringskoder_3]
@@ -50,7 +50,7 @@ def main():
     management_counts = roles.groupby('orgnr')['personal_number'].nunique().reset_index()
     management_counts.columns = ['orgnr', 'management_count']
 
-    N = 100000
+    N = 50000
     data = get_random_data(N)
     female_firstname, male_firstname = get_names(data)
 
@@ -75,7 +75,7 @@ def main():
     export_activities_to_neo4j(persons)
     export_companies_to_neo4j(merged)
     export_person_company_relationships_to_neo4j(persons=persons)
-    export_idustrial_codes_to_neo4j(code_description)
+    export_industrial_codes_to_neo4j(code_description)
     company_industrialCode_relationship(merged)
 
 if __name__ == "__main__":
