@@ -389,9 +389,53 @@ def export_to_cypher_file():
 
     print("Export completed and saved to export.cypher")
 
+def import_from_cypher_file():
+    with open("export.cypher", "r", encoding="utf-8") as f:
+        cypher_statements = f.read()
+    
+    # Split the statements by semicolon if that's the delimiter used in your file
+    statements = [stmt.strip() for stmt in cypher_statements.split(";") if stmt.strip()]
+    total_statements = len(statements)
+    print(f"Total statements to execute: {total_statements}")
+    
+    with driver.session() as session:
+        try:
+            # Execute statements in batches to manage memory and transaction size
+            batch_size = 1000  # Adjust batch size as needed
+            for i in range(0, total_statements, batch_size):
+                batch = statements[i:i+batch_size]
+                with session.begin_transaction() as tx:
+                    for statement in batch:
+                        tx.run(statement)
+                    tx.commit()
+                print(f"Executed statements {i+1} to {i+len(batch)}")
+            print("Import completed successfully.")
+        except Exception as e:
+            print(f"An error occurred during import: {e}")
+
+
+# def export_to_cypher_file():
+#     with driver.session() as session:
+#         result = session.run("""
+#             CALL apoc.export.cypher.all(null, {
+#                 stream: true,
+#                 format: "cypher-shell",
+#                 useOptimizations: { type: 'UNWIND_BATCH', unwindBatchSize: 20000 },
+#                 includeSchema: true
+#             }) YIELD cypherStatements
+#             RETURN cypherStatements
+#         """)
+        
+#         with open("export.cypher", "w", encoding="utf-8") as f:
+#             for record in result:
+#                 f.write(record["cypherStatements"] + "\n")
+
+#     print("Export completed and saved to export.cypher")
+
+
 if __name__ =="__main__":
     # Execute the function
-    export_to_cypher_file()
-
+    # export_to_cypher_file()
+    import_from_cypher_file()
     # Close the driver connection
     driver.close()
